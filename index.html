@@ -4,361 +4,757 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AETHER — Weather Intelligence</title>
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- Fonts: Cormorant Garamond (display) + Outfit (UI) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    :root {
+      --bg: #f5f3ef;
+      --surface: #ffffff;
+      --surface-2: #f0ede8;
+      --border: rgba(0,0,0,0.08);
+      --border-med: rgba(0,0,0,0.14);
+      --text-primary: #1a1815;
+      --text-secondary: #6b6560;
+      --text-tertiary: #9e9892;
+      --accent: #2a5fa5;
+      --accent-light: #e8eef7;
+      --amber: #c97c1a;
+      --amber-light: #fdf3e3;
+      --teal: #1a7a6a;
+      --teal-light: #e3f4f1;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --font-display: 'DM Serif Display', serif;
+      --font-ui: 'DM Sans', sans-serif;
+    }
+
+    body {
+      font-family: var(--font-ui);
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+
+    .brand-star {
+      width: 20px;
+      height: 20px;
+      color: var(--accent);
+    }
+
+    .search-box {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      border: 0.5px solid var(--border-med);
+      border-radius: var(--radius-sm);
+      padding: 0 14px;
+      height: 38px;
+      transition: border-color 0.15s;
+    }
+
+    .search-box:focus-within {
+      border-color: var(--accent);
+    }
+
+    .search-box svg {
+      width: 14px;
+      height: 14px;
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+    }
+
+    .search-box input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: var(--font-ui);
+      font-size: 13px;
+      color: var(--text-primary);
+      width: 100%;
+    }
+
+    .search-box input::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .locate-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--surface);
+      border: 0.5px solid var(--border-med);
+      border-radius: var(--radius-sm);
+      padding: 0 14px;
+      height: 38px;
+      font-family: var(--font-ui);
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .locate-btn:hover {
+      background: var(--accent-light);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .locate-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ── GRID LAYOUT ── */
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+    }
+
+    .eyebrow {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 10px;
+    }
+
+    /* ── CURRENT CONDITIONS CARD ── */
+    .city-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .city-row svg {
+      width: 13px;
+      height: 13px;
+      color: var(--text-tertiary);
+    }
+
+    .city-name {
+      font-family: var(--font-display);
+      font-size: 17px;
+      color: var(--text-primary);
+    }
+
+    .region-tag {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      padding: 2px 7px;
+      background: var(--surface-2);
+      border-radius: 20px;
+    }
+
+    .temp-display {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      margin: 10px 0 8px;
+    }
+
+    .temp-num {
+      font-family: var(--font-display);
+      font-size: 72px;
+      line-height: 1;
+      color: var(--text-primary);
+      letter-spacing: -3px;
+    }
+
+    .temp-meta {
+      padding-bottom: 10px;
+    }
+
+    .temp-unit {
+      font-size: 22px;
+      font-family: var(--font-display);
+      color: var(--text-secondary);
+    }
+
+    .cond-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      background: var(--accent-light);
+      border-radius: 20px;
+      padding: 3px 10px;
+      margin-bottom: 6px;
+    }
+
+    .cond-badge svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .feels-line {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-bottom: 14px;
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      border-top: 0.5px solid var(--border);
+      padding-top: 14px;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+
+    .stat-val {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    /* ── SOLAR SCHEDULE CARD ── */
+    .sun-arc-svg {
+      width: 100%;
+      margin: 4px 0 6px;
+    }
+
+    .sun-times-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .sun-time-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .sun-time-item span {
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-tertiary);
+    }
+
+    .sun-time-item strong {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .sun-time-item.center {
+      text-align: center;
+    }
+
+    .pressure-row {
+      border-top: 0.5px solid var(--border);
+      padding-top: 14px;
+      margin-top: 14px;
+    }
+
+    .pressure-num {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      margin: 4px 0 8px;
+    }
+
+    .pressure-num strong {
+      font-family: var(--font-display);
+      font-size: 28px;
+      color: var(--text-primary);
+    }
+
+    .pressure-num span {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    .pressure-bar {
+      height: 3px;
+      background: var(--surface-2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .pressure-fill {
+      height: 100%;
+      width: 62%;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    /* ── CHART CARD ── */
+    .chart-card {
+      margin-bottom: 12px;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 16px;
+    }
+
+    .chart-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text-primary);
+      margin-top: 3px;
+    }
+
+    .legend {
+      display: flex;
+      gap: 12px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .legend-dot.hi { background: var(--accent); }
+    .legend-dot.lo { background: #b5c9e8; }
+
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 110px;
+      padding-top: 20px;
+    }
+
+    .bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .bar-val-label {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .bar-hi-fill {
+      width: 100%;
+      background: var(--accent);
+      border-radius: 3px 3px 0 0;
+      min-height: 4px;
+    }
+
+    .bar-lo-fill {
+      width: 100%;
+      background: #b5c9e8;
+      border-radius: 3px 3px 0 0;
+      min-height: 4px;
+    }
+
+    .bar-day-label {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      margin-top: 6px;
+    }
+
+    /* ── 7-DAY FORECAST ── */
+    .forecast-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .fc-card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 6px;
+      text-align: center;
+    }
+
+    .fc-day {
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-tertiary);
+      margin-bottom: 6px;
+    }
+
+    .fc-icon {
+      font-size: 20px;
+      display: block;
+      margin: 2px 0 4px;
+      line-height: 1;
+    }
+
+    .fc-hi {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .fc-lo {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 1px;
+    }
+
+    .fc-card.today {
+      background: var(--accent-light);
+      border-color: rgba(42, 95, 165, 0.18);
+    }
+
+    .fc-card.today .fc-day {
+      color: var(--accent);
+    }
+
+    /* ── DETAIL GRID ── */
+    .detail-card {
+      margin-bottom: 12px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .detail-cell {
+      padding: 14px 0 10px;
+      border-right: 0.5px solid var(--border);
+      border-bottom: 0.5px solid var(--border);
+      padding-right: 16px;
+      padding-left: 4px;
+    }
+
+    .detail-cell:nth-child(3n) { border-right: none; }
+    .detail-cell:nth-last-child(-n+3) { border-bottom: none; }
+    .detail-cell:nth-child(3n+1) { padding-left: 0; }
+
+    .detail-cell svg {
+      width: 14px;
+      height: 14px;
+      color: var(--text-tertiary);
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .detail-cell .d-label {
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-tertiary);
+      margin-bottom: 3px;
+    }
+
+    .detail-cell .d-val {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    /* ── FOOTER ── */
+    .app-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      padding-top: 12px;
+      border-top: 0.5px solid var(--border);
+      margin-top: 4px;
+    }
+  </style>
 </head>
 <body>
 
-  <!-- ══════════════════════════════════════════════
-       CANVAS: Animated atmospheric background
-  ══════════════════════════════════════════════ -->
-  <canvas id="atmos-canvas"></canvas>
-
-  <!-- ══════════════════════════════════════════════
-       WEATHER SCENE: Rain / Snow / Sun / Cloud layers
-  ══════════════════════════════════════════════ -->
-  <div id="weather-scene">
-    <!-- Particle canvas for rain/snow -->
-    <canvas id="particle-canvas"></canvas>
-
-    <!-- Cloud layers -->
-    <div class="cloud-layer" id="cloud-layer-1">
-      <div class="cloud c1"></div>
-      <div class="cloud c2"></div>
-      <div class="cloud c3"></div>
-    </div>
-    <div class="cloud-layer" id="cloud-layer-2">
-      <div class="cloud c4"></div>
-      <div class="cloud c5"></div>
-    </div>
-
-    <!-- Sun / Moon orb -->
-    <div id="sky-orb" class="sky-orb"></div>
-    <div id="orb-rays" class="orb-rays"></div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════
-       MAIN APPLICATION SHELL
-  ══════════════════════════════════════════════ -->
-  <div class="app">
-
-    <!-- ── TOP BAR ── -->
-    <header class="top-bar">
-      <div class="brand">
-        <svg class="brand-mark" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2L14.5 9H22L16 13.5L18.5 20.5L12 16L5.5 20.5L8 13.5L2 9H9.5L12 2Z" fill="currentColor" opacity="0.9"/>
-        </svg>
-        <span class="brand-name">AETHER</span>
-      </div>
-
-      <!-- Search -->
-      <div class="search-wrap">
-        <div class="search-field" id="search-field">
-          <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-          </svg>
-          <input type="text" id="search-input" placeholder="Search city…" autocomplete="off" spellcheck="false" />
-          <button id="search-btn" aria-label="Search">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </button>
-        </div>
-        <div id="autocomplete-list" class="autocomplete-list hidden"></div>
-      </div>
-
-      <!-- Location -->
-      <button id="locate-btn" class="locate-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M12 1v4M12 19v4M1 12h4M19 12h4"/>
-        </svg>
-        <span>Locate Me</span>
-      </button>
-    </header>
-
-    <!-- ── LOADER ── -->
-    <div id="loader" class="loader hidden">
-      <div class="loader-inner">
-        <div class="loader-orb"></div>
-        <div class="loader-ring r1"></div>
-        <div class="loader-ring r2"></div>
-        <p class="loader-text">Reading the atmosphere…</p>
-      </div>
-    </div>
-
-    <!-- ── ERROR ── -->
-    <div id="error-box" class="error-box hidden">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="12" cy="12" r="10"/>
-        <path d="M12 8v4M12 16h.01"/>
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-star" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2L14.5 9H22L16 13.5L18.5 20.5L12 16L5.5 20.5L8 13.5L2 9H9.5L12 2Z"/>
       </svg>
-      <span id="error-text">Something went wrong.</span>
+      AETHER
+    </div>
+    <div class="search-box">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" id="search-input" placeholder="Search city…" autocomplete="off" />
+    </div>
+    <button class="locate-btn" id="locate-btn">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/>
+      </svg>
+      Locate me
+    </button>
+  </header>
+
+  <!-- HERO GRID -->
+  <div class="hero-grid">
+
+    <!-- Current Conditions -->
+    <div class="card">
+      <div class="eyebrow">Current conditions</div>
+      <div class="city-row">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+        </svg>
+        <span class="city-name">San Francisco</span>
+        <span class="region-tag">California, US</span>
+      </div>
+      <div class="temp-display">
+        <span class="temp-num">17</span>
+        <div class="temp-meta">
+          <span class="temp-unit">°C</span>
+        </div>
+      </div>
+      <div class="cond-badge">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+        </svg>
+        Partly cloudy
+      </div>
+      <p class="feels-line">Feels like 15°C · Updated just now</p>
+      <div class="stat-row">
+        <div class="stat-item">
+          <span class="stat-label">Humidity</span>
+          <span class="stat-val">72%</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Wind</span>
+          <span class="stat-val">14 km/h</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">UV Index</span>
+          <span class="stat-val">4 · Mod</span>
+        </div>
+      </div>
     </div>
 
-    <!-- ══════════════════════════════════════════
-         DASHBOARD (shown after data loads)
-    ══════════════════════════════════════════ -->
-    <main id="dashboard" class="dashboard hidden">
-
-      <!-- ── HERO SECTION ── -->
-      <section class="hero-section">
-
-        <!-- Left: Big temperature + conditions -->
-        <div class="hero-left">
-          <div class="location-line">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-            </svg>
-            <h1 id="city-display">—</h1>
-            <span id="region-display" class="region-tag">—</span>
-          </div>
-
-          <div class="temp-display">
-            <div class="temp-main">
-              <span id="temp-val">—</span>
-              <sup class="deg-unit">°C</sup>
-            </div>
-            <div id="condition-float" class="condition-float">
-              <img id="cond-icon" src="" alt="" class="cond-icon" />
-              <span id="cond-text">—</span>
-            </div>
-          </div>
-
-          <p id="feels-line" class="feels-line">Feels like —°C · Updated just now</p>
-
-          <!-- Stat row -->
-          <div class="hero-stats">
-            <div class="h-stat">
-              <div class="h-stat-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <path d="M12 2v6M12 22v-6M7 12H2M22 12h-5"/><circle cx="12" cy="12" r="4"/>
-                  <path d="M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-                </svg>
-              </div>
-              <span class="h-stat-label">UV Index</span>
-              <strong id="uv-val" class="h-stat-val">—</strong>
-            </div>
-            <div class="h-stat">
-              <div class="h-stat-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5"/>
-                </svg>
-              </div>
-              <span class="h-stat-label">Humidity</span>
-              <strong id="hum-val" class="h-stat-val">—</strong>
-            </div>
-            <div class="h-stat">
-              <div class="h-stat-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/>
-                </svg>
-              </div>
-              <span class="h-stat-label">Wind</span>
-              <strong id="wind-val" class="h-stat-val">—</strong>
-            </div>
-            <div class="h-stat">
-              <div class="h-stat-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                </svg>
-              </div>
-              <span class="h-stat-label">Local Time</span>
-              <strong id="time-val" class="h-stat-val">—</strong>
-            </div>
-          </div>
+    <!-- Solar Schedule -->
+    <div class="card">
+      <div class="eyebrow">Solar schedule</div>
+      <svg class="sun-arc-svg" viewBox="0 0 260 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 88 Q130 8 240 88" stroke="var(--border-med)" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M20 88 Q130 8 240 88" stroke="var(--amber)" stroke-width="2" stroke-linecap="round"
+              stroke-dasharray="280" stroke-dashoffset="95" opacity="0.7"/>
+        <circle cx="172" cy="34" r="7" fill="var(--amber)"/>
+        <circle cx="172" cy="34" r="14" fill="var(--amber)" opacity="0.12"/>
+        <line x1="10" y1="91" x2="250" y2="91" stroke="var(--border)" stroke-width="0.5"/>
+        <text x="20" y="100" font-size="9" fill="var(--text-tertiary)" font-family="DM Sans, sans-serif">6:24 AM</text>
+        <text x="240" y="100" text-anchor="end" font-size="9" fill="var(--text-tertiary)" font-family="DM Sans, sans-serif">7:32 PM</text>
+      </svg>
+      <div class="sun-times-row">
+        <div class="sun-time-item">
+          <span>Sunrise</span>
+          <strong>6:24 AM</strong>
         </div>
-
-        <!-- Right: Sun schedule + mini gauges -->
-        <div class="hero-right">
-
-          <!-- Sun Arc Card -->
-          <div class="glass-card sun-card">
-            <p class="card-eyebrow">Solar Schedule</p>
-            <div class="sun-arc-container">
-              <svg viewBox="0 0 260 150" class="sun-arc-svg">
-                <!-- Track -->
-                <path d="M20 130 Q130 -20 240 130" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3" stroke-linecap="round"/>
-                <!-- Progress -->
-                <path id="sun-progress" d="M20 130 Q130 -20 240 130" fill="none"
-                  stroke="url(#solarGrad)" stroke-width="3" stroke-linecap="round"
-                  stroke-dasharray="320" stroke-dashoffset="320"/>
-                <defs>
-                  <linearGradient id="solarGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stop-color="#f59e0b"/>
-                    <stop offset="100%" stop-color="#fde68a"/>
-                  </linearGradient>
-                </defs>
-                <!-- Sun position dot -->
-                <circle id="sun-pos" cx="20" cy="130" r="8" fill="#fde68a">
-                  <animate attributeName="r" values="8;10;8" dur="2s" repeatCount="indefinite"/>
-                </circle>
-                <!-- Glow under sun dot -->
-                <circle id="sun-glow" cx="20" cy="130" r="16" fill="#fde68a" opacity="0.2">
-                  <animate attributeName="r" values="14;20;14" dur="2s" repeatCount="indefinite"/>
-                </circle>
-                <!-- Horizon line -->
-                <line x1="10" y1="132" x2="250" y2="132" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-              </svg>
-            </div>
-            <div class="sun-times-row">
-              <div class="sun-time">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/>
-                  <line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/>
-                  <line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/>
-                </svg>
-                <span>Rise</span>
-                <strong id="sunrise-val">—</strong>
-              </div>
-              <div class="sun-divider">|</div>
-              <div class="sun-time">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="9" x2="12" y2="2"/>
-                  <line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/>
-                  <line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/>
-                </svg>
-                <span>Set</span>
-                <strong id="sunset-val">—</strong>
-              </div>
-            </div>
-          </div>
-
-          <!-- Humidity + Pressure row -->
-          <div class="mini-cards-row">
-            <div class="glass-card mini-card">
-              <p class="card-eyebrow">Humidity</p>
-              <div class="ring-gauge" id="hum-gauge">
-                <svg viewBox="0 0 80 80">
-                  <circle cx="40" cy="40" r="30" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="7"/>
-                  <circle id="hum-ring" cx="40" cy="40" r="30" fill="none" stroke="url(#humGrad)"
-                    stroke-width="7" stroke-linecap="round"
-                    stroke-dasharray="188.5" stroke-dashoffset="188.5"
-                    transform="rotate(-90 40 40)"/>
-                  <defs>
-                    <linearGradient id="humGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stop-color="#38bdf8"/>
-                      <stop offset="100%" stop-color="#818cf8"/>
-                    </linearGradient>
-                  </defs>
-                  <text x="40" y="46" text-anchor="middle" font-size="15" font-weight="600" fill="white" id="hum-ring-text">—</text>
-                </svg>
-              </div>
-            </div>
-            <div class="glass-card mini-card">
-              <p class="card-eyebrow">Pressure</p>
-              <div class="ring-gauge">
-                <svg viewBox="0 0 80 80">
-                  <circle cx="40" cy="40" r="30" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="7"/>
-                  <circle id="pres-ring" cx="40" cy="40" r="30" fill="none" stroke="url(#presGrad)"
-                    stroke-width="7" stroke-linecap="round"
-                    stroke-dasharray="188.5" stroke-dashoffset="94"
-                    transform="rotate(-90 40 40)"/>
-                  <defs>
-                    <linearGradient id="presGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stop-color="#f59e0b"/>
-                      <stop offset="100%" stop-color="#ef4444"/>
-                    </linearGradient>
-                  </defs>
-                  <text x="40" y="42" text-anchor="middle" font-size="11" font-weight="600" fill="white" id="pres-val">—</text>
-                  <text x="40" y="54" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.5)">hPa</text>
-                </svg>
-              </div>
-            </div>
-          </div>
-
+        <div class="sun-time-item center">
+          <span>Daylight</span>
+          <strong>13h 8m</strong>
         </div>
-      </section>
-
-      <!-- ── TEMPERATURE CHART ── -->
-      <section class="chart-section">
-        <div class="glass-card chart-card">
-          <div class="chart-header">
-            <div>
-              <p class="card-eyebrow">7-Day Temperature Trend</p>
-              <h2 class="chart-title">Temperature Forecast</h2>
-            </div>
-            <div class="chart-legend">
-              <span class="legend-item"><span class="legend-dot high"></span>High</span>
-              <span class="legend-item"><span class="legend-dot low"></span>Low</span>
-            </div>
-          </div>
-          <div class="chart-wrap">
-            <canvas id="temp-chart"></canvas>
-          </div>
+        <div class="sun-time-item" style="text-align:right">
+          <span>Sunset</span>
+          <strong>7:32 PM</strong>
         </div>
-      </section>
-
-      <!-- ── 7-DAY FORECAST CARDS ── -->
-      <section class="forecast-section">
-        <p class="section-label">7-Day Forecast</p>
-        <div id="forecast-row" class="forecast-row"></div>
-      </section>
-
-      <!-- ── EXTRA DETAILS ROW ── -->
-      <section class="details-section">
-        <div class="glass-card detail-wide">
-          <p class="card-eyebrow">Atmospheric Detail</p>
-          <div class="detail-grid">
-            <div class="detail-cell">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
-              </svg>
-              <span>Feels Like</span>
-              <strong id="d-feelslike">—</strong>
-            </div>
-            <div class="detail-cell">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-              </svg>
-              <span>Visibility</span>
-              <strong id="d-visibility">—</strong>
-            </div>
-            <div class="detail-cell">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/>
-              </svg>
-              <span>Wind Direction</span>
-              <strong id="d-winddir">—</strong>
-            </div>
-            <div class="detail-cell">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M12 2v6M12 22v-6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M22 12h-6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/>
-              </svg>
-              <span>UV Index</span>
-              <strong id="d-uv">—</strong>
-            </div>
-            <div class="detail-cell">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
-                <line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
-              </svg>
-              <span>Precipitation</span>
-              <strong id="d-precip">—</strong>
-            </div>
-            <div class="detail-cell">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
-              </svg>
-              <span>Cloud Cover</span>
-              <strong id="d-cloud">—</strong>
-            </div>
-          </div>
+      </div>
+      <div class="pressure-row">
+        <div class="eyebrow">Pressure</div>
+        <div class="pressure-num">
+          <strong>1013</strong>
+          <span>hPa · Normal range</span>
         </div>
-      </section>
-
-    </main>
-
-    <footer class="app-footer">
-      <span>Powered by WeatherAPI · <em>AETHER</em> Weather Intelligence</span>
-      <span id="footer-updated">—</span>
-    </footer>
+        <div class="pressure-bar">
+          <div class="pressure-fill"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <script src="script.js"></script>
+  <!-- TEMPERATURE CHART -->
+  <div class="card chart-card">
+    <div class="chart-header">
+      <div>
+        <div class="eyebrow">7-day trend</div>
+        <h2 class="chart-title">Temperature Forecast</h2>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot hi"></div>High</div>
+        <div class="legend-item"><div class="legend-dot lo"></div>Low</div>
+      </div>
+    </div>
+    <div class="bar-chart" id="bar-chart">
+      <!-- injected by JS -->
+    </div>
+  </div>
+
+  <!-- 7-DAY FORECAST -->
+  <div class="forecast-grid" id="forecast-grid">
+    <!-- injected by JS -->
+  </div>
+
+  <!-- ATMOSPHERIC DETAIL -->
+  <div class="card detail-card">
+    <div class="eyebrow" style="margin-bottom:14px;">Atmospheric detail</div>
+    <div class="detail-grid">
+      <div class="detail-cell">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+        </svg>
+        <div class="d-label">Feels like</div>
+        <div class="d-val">15°C</div>
+      </div>
+      <div class="detail-cell">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+        </svg>
+        <div class="d-label">Visibility</div>
+        <div class="d-val">16 km</div>
+      </div>
+      <div class="detail-cell">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/>
+        </svg>
+        <div class="d-label">Wind direction</div>
+        <div class="d-val">SW · 14 km/h</div>
+      </div>
+      <div class="detail-cell">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path d="M12 2v6M12 22v-6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M22 12h-6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/>
+        </svg>
+        <div class="d-label">UV Index</div>
+        <div class="d-val">4 · Moderate</div>
+      </div>
+      <div class="detail-cell">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+        </svg>
+        <div class="d-label">Precipitation</div>
+        <div class="d-val">0.4 mm</div>
+      </div>
+      <div class="detail-cell">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+        </svg>
+        <div class="d-label">Cloud cover</div>
+        <div class="d-val">48%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    <span>Powered by WeatherAPI · <em>AETHER</em> Weather Intelligence</span>
+    <span id="footer-time">—</span>
+  </footer>
+
+  <script>
+    const forecastData = [
+      { day: 'Mon', icon: '⛅', hi: 17, lo: 11, today: true },
+      { day: 'Tue', icon: '☀️', hi: 19, lo: 12 },
+      { day: 'Wed', icon: '☀️', hi: 22, lo: 14 },
+      { day: 'Thu', icon: '🌥', hi: 18, lo: 13 },
+      { day: 'Fri', icon: '🌧', hi: 15, lo: 10 },
+      { day: 'Sat', icon: '🌦', hi: 14, lo:  9 },
+      { day: 'Sun', icon: '⛅', hi: 16, lo: 11 },
+    ];
+
+    // Render forecast cards
+    const fgEl = document.getElementById('forecast-grid');
+    forecastData.forEach(({ day, icon, hi, lo, today }) => {
+      fgEl.innerHTML += `
+        <div class="fc-card ${today ? 'today' : ''}">
+          <div class="fc-day">${day}</div>
+          <span class="fc-icon">${icon}</span>
+          <div class="fc-hi">${hi}°</div>
+          <div class="fc-lo">${lo}°</div>
+        </div>`;
+    });
+
+    // Render bar chart
+    const maxHi = Math.max(...forecastData.map(d => d.hi));
+    const chartEl = document.getElementById('bar-chart');
+    forecastData.forEach(({ day, hi, lo }) => {
+      const hiH = Math.round((hi / maxHi) * 80);
+      const loH = Math.round((lo / maxHi) * 80);
+      chartEl.innerHTML += `
+        <div class="bar-col">
+          <span class="bar-val-label">${hi}°</span>
+          <div class="bar-hi-fill" style="height:${hiH}px"></div>
+          <div class="bar-lo-fill" style="height:${loH}px"></div>
+          <span class="bar-day-label">${day}</span>
+        </div>`;
+    });
+
+    // Footer time
+    document.getElementById('footer-time').textContent =
+      'Updated ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  </script>
 </body>
 </html>
