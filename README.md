@@ -1,46 +1,29 @@
 WeatherTrack
 
-WeatherTrack is a web-based application designed to provide real-time weather information for a specified location. The project demonstrates how external weather APIs can be integrated into a web interface to retrieve and display weather data such as temperature, humidity, and atmospheric conditions.
+WeatherTrack is a lightweight web application that allows users to quickly check the current weather conditions of any city. It demonstrates how modern web technologies can interact with external APIs to fetch and present real-time environmental data in a clean and user-friendly interface.
 
-The application is intended for learning purposes and shows how client-side technologies can be used to build a simple weather monitoring system.
+The project focuses on simplicity and clarity, making it ideal for beginners who want to understand how API requests work in a frontend environment. By entering a city name, users can instantly view essential weather details such as temperature, humidity, and atmospheric conditions retrieved directly from a weather data service.
 
-Features
-Search weather information by city name
-Display current temperature
+Key Features
+
+Search for weather information by city name
+Display real-time temperature updates
 Show humidity and atmospheric conditions
-Provide a simple and responsive user interface
-Fetch real-time data from a weather API
+Simple, clean, and responsive interface
+Integration with an external weather API for live data
+
 Technologies Used
 
-The project is implemented using the following technologies:
-
-HTML – Structure of the application
-CSS – Styling and layout
-JavaScript – Application logic and API communication
-Weather API – Source for real-time weather data
+HTML – Defines the structure of the web page
+CSS – Handles styling and responsive layout
+JavaScript – Manages API calls and dynamic data rendering
+Weather API – Provides real-time weather information
 
 Project Structure
+
 WeatherTrack
 │
-├── index.html
-├── style.css
-├── script.js
-└── README.md
-
-Description of files:
-
-index.html – Main webpage structure
-style.css – Styling rules for the interface
-script.js – Handles API requests and displays weather data
-README.md – Project documentation
-Installation
-
-Clone the repository to your local machine:
-
-git clone https://github.com/Sibasish45/WeatherTrack.git
-
-Usage
-Launch the application in a web browser.
-Enter the name of a city in the search field.
-Submit the request.
-The application will retrieve and display the current weather information for the specified location.
+├── index.html    # Main application layout
+├── style.css     # Styling and UI design
+├── script.js     # API communication and application logic
+└── README.md     # Project documentation
